@@ -1,0 +1,5 @@
+# Unicorn is too complex for x86 BIOS simulation
+[ ] A: Remove all architectures except __x86__
+
+# Unicorn bindings appear to be completely unused
+[ ] A: Remove all bindings
