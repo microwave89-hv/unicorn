@@ -29,7 +29,7 @@ License
 This project is released under the [GPL license](COPYING).
 
 
-Compilation & Docs
+Compilation
 ------------------
 
 ```
