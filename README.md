@@ -2,7 +2,7 @@ Unicorn x86
 ==============
 
 Lightweight, x86 CPU emulator framework heavily based on [Unicorn Engine](https://www.unicorn-engine.org/).
-All unneeded architectures have been stripped and the build was tailored to macOS (High Sierra).
+All unneeded architectures have been stripped and the build was tailored to macOS (High Sierra) (Only native x64).
 
 This currently offers the following features:
   - Single-architecture: x86 (16, 32, 64-bit)
