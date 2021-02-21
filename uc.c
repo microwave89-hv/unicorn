@@ -1,13 +1,9 @@
 /* Unicorn Emulator Engine */
 /* By Nguyen Anh Quynh <aquynh@gmail.com>, 2015 */
 
-#if defined(UNICORN_HAS_OSXKERNEL)
-#include <libkern/libkern.h>
-#else
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#endif
 
 #include <time.h>   // nanosleep
 
@@ -16,11 +12,7 @@
 #include "uc_priv.h"
 
 // target specific headers
-#include "qemu/target-m68k/unicorn.h"
 #include "qemu/target-i386/unicorn.h"
-#include "qemu/target-arm/unicorn.h"
-#include "qemu/target-mips/unicorn.h"
-#include "qemu/target-sparc/unicorn.h"
 
 #include "qemu/include/hw/boards.h"
 #include "qemu/include/qemu/queue.h"
@@ -109,27 +101,8 @@ UNICORN_EXPORT
 bool uc_arch_supported(uc_arch arch)
 {
     switch (arch) {
-#ifdef UNICORN_HAS_ARM
-        case UC_ARCH_ARM:   return true;
-#endif
-#ifdef UNICORN_HAS_ARM64
-        case UC_ARCH_ARM64: return true;
-#endif
-#ifdef UNICORN_HAS_M68K
-        case UC_ARCH_M68K:  return true;
-#endif
-#ifdef UNICORN_HAS_MIPS
-        case UC_ARCH_MIPS:  return true;
-#endif
-#ifdef UNICORN_HAS_PPC
-        case UC_ARCH_PPC:   return true;
-#endif
-#ifdef UNICORN_HAS_SPARC
-        case UC_ARCH_SPARC: return true;
-#endif
-#ifdef UNICORN_HAS_X86
         case UC_ARCH_X86:   return true;
-#endif
+		
         /* Invalid or disabled arch */
         default:            return false;
     }
@@ -165,104 +138,15 @@ uc_err uc_open(uc_arch arch, uc_mode mode, uc_engine **result)
         switch(arch) {
             default:
                 break;
-#ifdef UNICORN_HAS_M68K
-            case UC_ARCH_M68K:
-                if ((mode & ~UC_MODE_M68K_MASK) ||
-                        !(mode & UC_MODE_BIG_ENDIAN)) {
-                    free(uc);
-                    return UC_ERR_MODE;
-                }
-                uc->init_arch = m68k_uc_init;
-                break;
-#endif
-#ifdef UNICORN_HAS_X86
+
             case UC_ARCH_X86:
                 if ((mode & ~UC_MODE_X86_MASK) ||
-                        (mode & UC_MODE_BIG_ENDIAN) ||
-                        !(mode & (UC_MODE_16|UC_MODE_32|UC_MODE_64))) {
+                        !(mode & UC_MODE_X86_MASK)) {
                     free(uc);
                     return UC_ERR_MODE;
                 }
                 uc->init_arch = x86_uc_init;
                 break;
-#endif
-#ifdef UNICORN_HAS_ARM
-            case UC_ARCH_ARM:
-                if ((mode & ~UC_MODE_ARM_MASK)) {
-                    free(uc);
-                    return UC_ERR_MODE;
-                }
-                if (mode & UC_MODE_BIG_ENDIAN) {
-#ifdef UNICORN_HAS_ARMEB
-                    uc->init_arch = armeb_uc_init;
-#else
-                    return UC_ERR_MODE;
-#endif
-                } else {
-                    uc->init_arch = arm_uc_init;
-                }
-
-                if (mode & UC_MODE_THUMB)
-                    uc->thumb = 1;
-                break;
-#endif
-#ifdef UNICORN_HAS_ARM64
-            case UC_ARCH_ARM64:
-                if (mode & ~UC_MODE_ARM_MASK) {
-                    free(uc);
-                    return UC_ERR_MODE;
-                }
-                if (mode & UC_MODE_BIG_ENDIAN) {
-                    uc->init_arch = arm64eb_uc_init;
-                } else {
-                    uc->init_arch = arm64_uc_init;
-                }
-                break;
-#endif
-
-#if defined(UNICORN_HAS_MIPS) || defined(UNICORN_HAS_MIPSEL) || defined(UNICORN_HAS_MIPS64) || defined(UNICORN_HAS_MIPS64EL)
-            case UC_ARCH_MIPS:
-                if ((mode & ~UC_MODE_MIPS_MASK) ||
-                        !(mode & (UC_MODE_MIPS32|UC_MODE_MIPS64))) {
-                    free(uc);
-                    return UC_ERR_MODE;
-                }
-                if (mode & UC_MODE_BIG_ENDIAN) {
-#ifdef UNICORN_HAS_MIPS
-                    if (mode & UC_MODE_MIPS32)
-                        uc->init_arch = mips_uc_init;
-#endif
-#ifdef UNICORN_HAS_MIPS64
-                    if (mode & UC_MODE_MIPS64)
-                        uc->init_arch = mips64_uc_init;
-#endif
-                } else {    // little endian
-#ifdef UNICORN_HAS_MIPSEL
-                    if (mode & UC_MODE_MIPS32)
-                        uc->init_arch = mipsel_uc_init;
-#endif
-#ifdef UNICORN_HAS_MIPS64EL
-                    if (mode & UC_MODE_MIPS64)
-                        uc->init_arch = mips64el_uc_init;
-#endif
-                }
-                break;
-#endif
-
-#ifdef UNICORN_HAS_SPARC
-            case UC_ARCH_SPARC:
-                if ((mode & ~UC_MODE_SPARC_MASK) ||
-                        !(mode & UC_MODE_BIG_ENDIAN) ||
-                        !(mode & (UC_MODE_SPARC32|UC_MODE_SPARC64))) {
-                    free(uc);
-                    return UC_ERR_MODE;
-                }
-                if (mode & UC_MODE_SPARC64)
-                    uc->init_arch = sparc64_uc_init;
-                else
-                    uc->init_arch = sparc_uc_init;
-                break;
-#endif
         }
 
         if (uc->init_arch == NULL) {
@@ -579,12 +463,6 @@ uc_err uc_emu_start(uc_engine* uc, uint64_t begin, uint64_t until, uint64_t time
     switch(uc->arch) {
         default:
             break;
-#ifdef UNICORN_HAS_M68K
-        case UC_ARCH_M68K:
-            uc_reg_write(uc, UC_M68K_REG_PC, &begin);
-            break;
-#endif
-#ifdef UNICORN_HAS_X86
         case UC_ARCH_X86:
             switch(uc->mode) {
                 default:
@@ -607,29 +485,6 @@ uc_err uc_emu_start(uc_engine* uc, uint64_t begin, uint64_t until, uint64_t time
                     break;
             }
             break;
-#endif
-#ifdef UNICORN_HAS_ARM
-        case UC_ARCH_ARM:
-            uc_reg_write(uc, UC_ARM_REG_R15, &begin);
-            break;
-#endif
-#ifdef UNICORN_HAS_ARM64
-        case UC_ARCH_ARM64:
-            uc_reg_write(uc, UC_ARM64_REG_PC, &begin);
-            break;
-#endif
-#ifdef UNICORN_HAS_MIPS
-        case UC_ARCH_MIPS:
-            // TODO: MIPS32/MIPS64/BIGENDIAN etc
-            uc_reg_write(uc, UC_MIPS_REG_PC, &begin);
-            break;
-#endif
-#ifdef UNICORN_HAS_SPARC
-        case UC_ARCH_SPARC:
-            // TODO: Sparc/Sparc64
-            uc_reg_write(uc, UC_SPARC_REG_PC, &begin);
-            break;
-#endif
     }
 
     uc->stop_request = false;
@@ -1296,43 +1151,7 @@ static size_t cpu_context_size(uc_arch arch, uc_mode mode)
     // tbl_table is the first entry in the CPU_COMMON macro, so it marks the end
     // of the interesting CPU registers
     switch (arch) {
-#ifdef UNICORN_HAS_M68K
-        case UC_ARCH_M68K:  return M68K_REGS_STORAGE_SIZE;
-#endif
-#ifdef UNICORN_HAS_X86
         case UC_ARCH_X86:   return X86_REGS_STORAGE_SIZE;
-#endif
-#ifdef UNICORN_HAS_ARM
-        case UC_ARCH_ARM:   return mode & UC_MODE_BIG_ENDIAN ?
-#ifdef UNICORN_HAS_ARMEB
-       ARM_REGS_STORAGE_SIZE_armeb
-#else
-       0
-#endif
-       : ARM_REGS_STORAGE_SIZE_arm;
-#endif
-#ifdef UNICORN_HAS_ARM64
-        case UC_ARCH_ARM64: return mode & UC_MODE_BIG_ENDIAN ? ARM64_REGS_STORAGE_SIZE_aarch64eb : ARM64_REGS_STORAGE_SIZE_aarch64;
-#endif
-#ifdef UNICORN_HAS_MIPS
-        case UC_ARCH_MIPS:
-            if (mode & UC_MODE_MIPS64) {
-                if (mode & UC_MODE_BIG_ENDIAN) {
-                    return MIPS64_REGS_STORAGE_SIZE_mips64;
-                } else {
-                    return MIPS64_REGS_STORAGE_SIZE_mips64el;
-                }
-            } else {
-                if (mode & UC_MODE_BIG_ENDIAN) {
-                    return MIPS_REGS_STORAGE_SIZE_mips;
-                } else {
-                    return MIPS_REGS_STORAGE_SIZE_mipsel;
-                }
-            }
-#endif
-#ifdef UNICORN_HAS_SPARC
-        case UC_ARCH_SPARC: return mode & UC_MODE_SPARC64 ? SPARC64_REGS_STORAGE_SIZE : SPARC_REGS_STORAGE_SIZE;
-#endif
         default: return 0;
     }
 }
