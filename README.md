@@ -1,26 +1,26 @@
-Unicorn Engine
+Unicorn x86
 ==============
 
-[![Join the chat at https://gitter.im/unicorn-engine/chat](https://badges.gitter.im/unicorn-engine/unicorn.svg)](https://gitter.im/unicorn-engine/chat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/unicorn-engine/unicorn.svg?branch=master)](https://travis-ci.org/unicorn-engine/unicorn)
-[![pypi downloads](https://pepy.tech/badge/unicorn)](https://pepy.tech/project/unicorn)
-[![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/unicorn.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:unicorn)
+Lightweight, x86 CPU emulator framework heavily based on [Unicorn Engine](https://www.unicorn-engine.org/).
+All unneeded architectures have been stripped and the build was tailored to macOS (High Sierra).
 
-Unicorn is a lightweight, multi-platform, multi-architecture CPU emulator framework
-based on [QEMU](http://qemu.org).
+This currently offers the following features:
+  - Single-architecture: x86 (16, 32, 64-bit)
+  - Clean/simple/lightweight/intuitive architecture-neutral API
+  - Implemented in pure C language, with no bindings whatsoever (Use PyPi to get Python binding)
+  - Runs on macOS High Sierra (Tested!)
+  - High performance via Just-In-Time compilation <== Remove this feature for uncomplicating matters!
+  - Builtin basic x86 test cases
+  - Support for fine-grained instrumentation at various levels <== ??
+  - Thread-safety by design <== Possibly remove that too for uncomplicating matters!
+  - Distributed under free software license GPLv2
 
-Unicorn offers some unparalleled features:
+This __aims__ to offer the following features in the future:
+  - Execution from the reset vector @ 0xfffffff0
+  - Fully track and emulate mode-switches between real mode, 16-bit pmode, 32-bit pmode, and long mode
+  - Realistic CPU model for Intel(R) Core 2 Duo T9600, Intel(R) Core i7 3720QM, and Intel(R) Core i7 4960HQ
 
-- Multi-architecture: ARM, ARM64 (ARMv8), M68K, MIPS, SPARC, and X86 (16, 32, 64-bit)
-- Clean/simple/lightweight/intuitive architecture-neutral API
-- Implemented in pure C language, with bindings for Crystal, Clojure, Visual Basic, Perl, Rust, Ruby, Python, Java, .NET, Go, Delphi/Free Pascal, Haskell, Pharo, and Lua.
-- Native support for Windows & *nix (with Mac OSX, Linux, *BSD & Solaris confirmed)
-- High performance via Just-In-Time compilation
-- Support for fine-grained instrumentation at various levels
-- Thread-safety by design
-- Distributed under free software license GPLv2
-
-Further information is available at http://www.unicorn-engine.org
+Further information is available at (null)
 
 
 License
@@ -32,23 +32,7 @@ This project is released under the [GPL license](COPYING).
 Compilation & Docs
 ------------------
 
-See [docs/COMPILE.md](docs/COMPILE.md) file for how to compile and install Unicorn.
-
-More documentation is available in [docs/README.md](docs/README.md).
-
-
-Contact
--------
-
-[Contact us](http://www.unicorn-engine.org/contact/) via mailing list, email or twitter for any questions.
-
-
-Contribute
-----------
-
-If you want to contribute, please pick up something from our [Github issues](https://github.com/unicorn-engine/unicorn/issues).
-
-We also maintain a list of more challenged problems in a [TODO list](https://github.com/unicorn-engine/unicorn/wiki/TODO).
-
-[CREDITS.TXT](CREDITS.TXT) records important contributors of our project.
-
+```
+$ cd <unicorn-dir>
+$ make full
+```
