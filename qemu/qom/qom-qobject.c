@@ -16,7 +16,7 @@
 #include "qapi/qmp-input-visitor.h"
 #include "qapi/qmp-output-visitor.h"
 
-void object_property_set_qobject(struct uc_struct *uc, Object *obj, QObject *value,
+void object_property_set_qobject(struct uc_struct *uc, Object *obj, QObject *value, // live code
                                  const char *name, Error **errp)
 {
     QmpInputVisitor *mi;
@@ -26,7 +26,7 @@ void object_property_set_qobject(struct uc_struct *uc, Object *obj, QObject *val
     qmp_input_visitor_cleanup(mi);
 }
 
-QObject *object_property_get_qobject(struct uc_struct *uc, Object *obj, const char *name,
+QObject *object_property_get_qobject(struct uc_struct *uc, Object *obj, const char *name, // dead code
                                      Error **errp)
 {
     QObject *ret = NULL;
@@ -40,5 +40,6 @@ QObject *object_property_get_qobject(struct uc_struct *uc, Object *obj, const ch
     }
     error_propagate(errp, local_err);
     qmp_output_visitor_cleanup(mo);
-    return ret;
+	for(;;);
+    //return ret;
 }

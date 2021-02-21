@@ -74,7 +74,7 @@ do {                                                                \
     uc_err __err = err;                                             \
     if (__err != expect) {                                          \
         fprintf(stderr, "%s", uc_strerror(__err));                  \
-        exit(1);                                                    \
+        for(;;); exit(1);                                                    \
     }                                                               \
 } while (0)
 
@@ -95,7 +95,7 @@ do {                                                                \
     uc_err __err = err;                                             \
     if (__err == UC_ERR_OK) {                                       \
         fprintf(stderr, "%s", uc_strerror(__err));                  \
-        exit(1);                                                    \
+        for(;;); exit(1);                                                    \
     }                                                               \
 } while (0)
 

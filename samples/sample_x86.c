@@ -213,6 +213,7 @@ static void test_i386(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	//test_i386_post_verify(uc);
 
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
@@ -220,15 +221,32 @@ static void test_i386(void)
     uc_reg_read(uc, UC_X86_REG_ECX, &r_ecx);
     uc_reg_read(uc, UC_X86_REG_EDX, &r_edx);
     uc_reg_read(uc, UC_X86_REG_XMM0, &r_xmm0);
+    uc_reg_read(uc, UC_X86_REG_XMM1, &r_xmm1);
     printf(">>> ECX = 0x%x\n", r_ecx);
     printf(">>> EDX = 0x%x\n", r_edx);
     printf(">>> XMM0 = 0x%.16"PRIx64"%.16"PRIx64"\n", r_xmm0[1], r_xmm0[0]);
+    printf(">>> XMM1 = 0x%.16"PRIx64"%.16"PRIx64"\n", r_xmm1[1], r_xmm1[0]);
+	if ((r_ecx != 0x1235) ||
+		(r_edx != 0x788f) ||
+		(r_xmm0[0] != 0x8899aabbccddeeff) ||
+		(r_xmm0[1] != 0x0011223344556677) ||
+		(r_xmm1[0] != 0x8090a0b0c0d0e0f0) ||
+		(r_xmm1[1] != 0x0010203040506070)) {
+			for(;;);
+		}
 
     // read from memory
-    if (!uc_mem_read(uc, ADDRESS, &tmp, sizeof(tmp)))
-        printf(">>> Read 4 bytes from [0x%x] = 0x%x\n", ADDRESS, tmp);
-    else
-        printf(">>> Failed to read 4 bytes from [0x%x]\n", ADDRESS);
+    if (!uc_mem_read(uc, ADDRESS, &tmp, sizeof(tmp))) {
+    	printf(">>> Read 4 bytes from [0x%x] = 0x%x\n", ADDRESS, tmp);
+		if (tmp != 0xf664a41) {
+			for(;;);
+		}
+    }
+    else {
+    	printf(">>> Failed to read 4 bytes from [0x%x]\n", ADDRESS);
+		for(;;);
+    }
+
 
     uc_close(uc);
 }
@@ -285,7 +303,8 @@ static void test_i386_map_ptr(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
-
+	//test_i386_map_ptr_post_verify(uc);
+	
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
 
@@ -342,6 +361,7 @@ static void test_i386_jump(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	//test_i386_jump_post_verify(uc);
 
     printf(">>> Emulation done. Below is the CPU context\n");
 
@@ -349,7 +369,7 @@ static void test_i386_jump(void)
 }
 
 // emulate code that loop forever
-static void test_i386_loop(void)
+static void test_i386_loop(void) // Do not test here since currently there is no use case of time-constrained BIOS simulation and it might be removed in the future.
 {
     uc_engine *uc;
     uc_err err;
@@ -387,6 +407,7 @@ static void test_i386_loop(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	//test_i386_loop_post_verify();
 
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
@@ -444,6 +465,7 @@ static void test_i386_invalid_mem_read(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	//test_i386_invalid_mem_read_post_verify();
 
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
@@ -505,6 +527,7 @@ static void test_i386_invalid_mem_write(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	//test_i386_invalid_mem_write_post_verify();
 
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
@@ -573,6 +596,7 @@ static void test_i386_jump_invalid(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	//test_i386_jump_invalid_post_verify()
 
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
@@ -635,6 +659,7 @@ static void test_i386_inout(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	//test_i386_inout_post_verify();
 
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
@@ -648,7 +673,7 @@ static void test_i386_inout(void)
 }
 
 // emulate code and save/restore the CPU context
-static void test_i386_context_save(void)
+static void test_i386_context_save(void) // Do not test since currently there is no use case for (stock) Unicorn context save when simulating BIOS ==> It should be removed
 {
     uc_engine *uc;
     uc_context *context;
@@ -885,7 +910,8 @@ static void test_x86_64(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
-
+	//test_x86_64_post_verify();
+		
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
 
@@ -918,8 +944,33 @@ static void test_x86_64(void)
     printf(">>> R13 = 0x%" PRIx64 "\n", r13);
     printf(">>> R14 = 0x%" PRIx64 "\n", r14);
     printf(">>> R15 = 0x%" PRIx64 "\n", r15);
+	
+	if((rax != 0xdb8ee18208cd6d03) ||
+	(rbx != 0xd87b45277f133ddb) ||
+	(rcx != 0x3c091e6a) ||
+	(rdx != 0x25b8d5a4dbb38112) ||
+	(rsi != 0xb3db18ac5e815ca7) ||
+	(rdi != 0x48288ca5671c5492) ||
+	(r8 != 0xec45774f00c5f682) ||
+	(r9 != 0xc118b68e7fcfeeff) ||
+	(r10 != 0x596b8d4f) ||
+	(r11 != 0xe17e9dbec8c074aa) ||
+	(r12 != 0x595f72f6b9d8cf32) ||
+	(r13 != 0xea5b108cc2b9ab1f) ||
+	(r14 != 0x595f72f6e4017f6e) ||
+	(r15 != 0x3e04f60c8f7ecbd7)) {
+		for(;;);
+	}
 
     uc_close(uc);
+}
+
+void test_x86_64_syscall_post_verify(uc_engine * uc) {
+	uint64_t rax = 0;
+	uc_reg_read(uc, UC_X86_REG_RAX, &rax);
+	if (rax != 0x200) {
+		for(;;);
+	}
 }
 
 static void test_x86_64_syscall(void)
@@ -962,6 +1013,7 @@ static void test_x86_64_syscall(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	test_x86_64_syscall_post_verify(uc);
 
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
@@ -972,6 +1024,10 @@ static void test_x86_64_syscall(void)
 
     uc_close(uc);
 }
+
+/*void test_x86_16_post_verify(uc_engine *uc) {
+
+}*/
 
 static void test_x86_16(void)
 {
@@ -1001,6 +1057,10 @@ static void test_x86_16(void)
         return;
     }
 
+	    uint8_t temp = 0x74;
+	
+uc_mem_write(uc, 11, &temp, 1);
+
     // initialize machine registers
     uc_reg_write(uc, UC_X86_REG_EAX, &eax);
     uc_reg_write(uc, UC_X86_REG_EBX, &ebx);
@@ -1013,61 +1073,43 @@ static void test_x86_16(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	//test_x86_16_post_verify(uc);
 
     // now print out some registers
     printf(">>> Emulation done. Below is the CPU context\n");
 
     // read from memory
-    if (!uc_mem_read(uc, 11, &tmp, 1))
-        printf(">>> Read 1 bytes from [0x%x] = 0x%x\n", 11, tmp);
-    else
-        printf(">>> Failed to read 1 bytes from [0x%x]\n", 11);
+    if (!uc_mem_read(uc, 11, &tmp, 1)) {
+    	        printf(">>> Read 1 bytes from [0x%x] = 0x%x\n", 11, tmp);
+				if (tmp != 0x7b) {
+					for(;;);
+				}
+    }
+
+    else {
+    	printf(">>> Failed to read 1 bytes from [0x%x]\n", 11);
+		
+    }
+        
 
     uc_close(uc);
 }
 
-int main(int argc, char **argv, char **envp)
+int main(void)
 {
-    if (argc == 2) {
-        if (!strcmp(argv[1], "-16")) {
-            test_x86_16();
-        }
-        else if (!strcmp(argv[1], "-32")) {
-            test_i386();
-            test_i386_map_ptr();
-            test_i386_inout();
-            test_i386_context_save();
-            test_i386_jump();
-            test_i386_loop();
-            test_i386_invalid_mem_read();
-            test_i386_invalid_mem_write();
-            test_i386_jump_invalid();
-            //test_i386_invalid_c6c7();
-        }
-        else if (!strcmp(argv[1], "-64")) {
-            test_x86_64();
-            test_x86_64_syscall();
-        }
-        else if (!strcmp(argv[1], "-h")) {
-            printf("Syntax: %s <-16|-32|-64>\n", argv[0]);
-        }
-   }
-   else {
-        test_x86_16();
-        test_i386();
-        test_i386_map_ptr();
-        test_i386_inout();
-        test_i386_context_save();
-        test_i386_jump();
-        test_i386_loop();
-        test_i386_invalid_mem_read();
-        test_i386_invalid_mem_write();
-        test_i386_jump_invalid();
-        //test_i386_invalid_c6c7();
-        test_x86_64();
-        test_x86_64_syscall();
-
-    }
+    test_x86_16();
+    test_i386();
+    test_i386_map_ptr();
+    test_i386_inout();
+    test_i386_context_save();
+    test_i386_jump();
+    test_i386_loop();
+    test_i386_invalid_mem_read();
+    test_i386_invalid_mem_write();
+    test_i386_jump_invalid();
+    //test_i386_invalid_c6c7();
+    test_x86_64();
+    test_x86_64_syscall();
 
     return 0;
 }

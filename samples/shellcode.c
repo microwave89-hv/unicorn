@@ -8,7 +8,7 @@
 
 
 // code to be emulated
-#define X86_CODE32 "\xeb\x19\x31\xc0\x31\xdb\x31\xd2\x31\xc9\xb0\x04\xb3\x01\x59\xb2\x05\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80\xe8\xe2\xff\xff\xff\x68\x65\x6c\x6c\x6f"
+//#define X86_CODE32 "\xeb\x19\x31\xc0\x31\xdb\x31\xd2\x31\xc9\xb0\x04\xb3\x01\x59\xb2\x05\xcd\x80\x31\xc0\xb0\x01\x31\xdb\xcd\x80\xe8\xe2\xff\xff\xff\x68\x65\x6c\x6c\x6f"
 
 #define X86_CODE32_SELF "\xeb\x1c\x5a\x89\xd6\x8b\x02\x66\x3d\xca\x7d\x75\x06\x66\x05\x03\x03\x89\x02\xfe\xc2\x3d\x41\x41\x41\x41\x75\xe9\xff\xe6\xe8\xdf\xff\xff\xff\x31\xd2\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x52\x53\x89\xe1\xca\x7d\x41\x41\x41\x41\x41\x41\x41\x41"
 
@@ -82,6 +82,90 @@ static void hook_intr(uc_engine *uc, uint32_t intno, void *user_data)
     }
 }
 
+void shellcode_post_verify32(uc_engine *uc) {
+	uint32_t r_eax = 0;
+	uint32_t r_ebx = 0;
+	uint32_t r_ecx = 0;
+	uint32_t r_edx = 0;
+	uint32_t r_esi = 0;
+	uint32_t r_edi = 0;
+	uint32_t r_esp = 0;
+	uint32_t r_ebp = 0;
+	uint32_t r_eip = 0;
+	uint32_t r_eflags = 0;
+	uint32_t r_cr0 = 0;
+	uint32_t r_cr1 = 0;
+	uint32_t r_cr2 = 0;
+	uint32_t r_cr3 = 0;
+	uint32_t r_cr4 = 0;
+	uint32_t r_cr5 = 0;
+	uint32_t r_cr6 = 0;
+	uint32_t r_cr7 = 0;
+	
+	uc_reg_read(uc, UC_X86_REG_EAX, &r_eax);
+	uc_reg_read(uc, UC_X86_REG_EBX, &r_ebx);
+	uc_reg_read(uc, UC_X86_REG_ECX, &r_ecx);
+	uc_reg_read(uc, UC_X86_REG_EDX, &r_edx);
+	uc_reg_read(uc, UC_X86_REG_ESI, &r_esi);
+	uc_reg_read(uc, UC_X86_REG_EDI, &r_edi);
+	uc_reg_read(uc, UC_X86_REG_ESP, &r_esp);
+	uc_reg_read(uc, UC_X86_REG_EBP, &r_ebp);
+	uc_reg_read(uc, UC_X86_REG_EIP, &r_eip);
+	uc_reg_read(uc, UC_X86_REG_EFLAGS, &r_eflags);
+	uc_reg_read(uc, UC_X86_REG_CR0, &r_cr0);
+	uc_reg_read(uc, UC_X86_REG_CR1, &r_cr1);
+	uc_reg_read(uc, UC_X86_REG_CR2, &r_cr2);
+	uc_reg_read(uc, UC_X86_REG_CR3, &r_cr3);
+	uc_reg_read(uc, UC_X86_REG_CR4, &r_cr4);
+	uc_reg_read(uc, UC_X86_REG_CR5, &r_cr5);
+	uc_reg_read(uc, UC_X86_REG_CR6, &r_cr6);
+	uc_reg_read(uc, UC_X86_REG_CR7, &r_cr7);
+
+
+	printf("shellcode_post_verify(): eax = 0x%x\n", r_eax);
+	printf("shellcode_post_verify(): ebx = 0x%x\n", r_ebx);
+	printf("shellcode_post_verify(): ecx = 0x%x\n", r_ecx);
+	printf("shellcode_post_verify(): edx = 0x%x\n", r_edx);
+	printf("shellcode_post_verify(): esi = 0x%x\n", r_esi);
+	printf("shellcode_post_verify(): edi = 0x%x\n", r_edi);
+	printf("shellcode_post_verify(): esp = 0x%x\n", r_esp);
+	printf("shellcode_post_verify(): ebp = 0x%x\n", r_ebp);
+	printf("shellcode_post_verify(): eip = 0x%x\n", r_eip);
+	printf("shellcode_post_verify(): eflags = 0x%x\n", r_eflags);
+	printf("shellcode_post_verify(): cr0 = 0x%x\n", r_cr0);
+	printf("shellcode_post_verify(): cr1 = 0x%x\n", r_cr1);
+	printf("shellcode_post_verify(): cr2 = 0x%x\n", r_cr2);
+	printf("shellcode_post_verify(): cr3 = 0x%x\n", r_cr3);
+	printf("shellcode_post_verify(): cr4 = 0x%x\n", r_cr4);
+	printf("shellcode_post_verify(): cr5 = 0x%x\n", r_cr5);
+	printf("shellcode_post_verify(): cr6 = 0x%x\n", r_cr6);
+	printf("shellcode_post_verify(): cr7 = 0x%x\n", r_cr7);
+	
+	
+	if (
+	(r_eax != 0xb) ||
+	(r_ebx != 0x11ffff4) ||
+	(r_ecx != 0x11ffff4) ||
+	(r_edx != 0x0) ||
+	(r_esi != 0x1000023) ||
+	(r_edi != 0x0) ||
+	(r_esp != 0x11fffec) ||
+	(r_ebp != 0x0) ||
+	(r_eflags != 0x0) ||
+	(r_eip != 0x1000044) ||
+	(r_cr0 != 0x11) ||
+	(r_cr1 != 0x0) ||
+	(r_cr2 != 0x0) ||
+	(r_cr3 != 0x0) ||
+	(r_cr4 != 0x0) ||
+	(r_cr5 != 0x0) ||
+	(r_cr6 != 0x0) ||
+	(r_cr7 != 0x0)) {
+		printf("shellcode_post_verify(): FAIL ==> crash\n");
+		for(;;);
+	}
+}
+
 static void test_i386(void)
 {
     uc_engine *uc;
@@ -118,7 +202,7 @@ static void test_i386(void)
     uc_hook_add(uc, &trace2, UC_HOOK_INTR, hook_intr, NULL, 1, 0);
 
     printf("\n>>> Start tracing this Linux code\n");
-
+	
     // emulate machine code in infinite time
     // err = uc_emu_start(uc, ADDRESS, ADDRESS + sizeof(X86_CODE32_SELF), 0, 12); <--- emulate only 12 instructions
     err = uc_emu_start(uc, ADDRESS, ADDRESS + sizeof(X86_CODE32_SELF) - 1, 0, 0);
@@ -126,6 +210,7 @@ static void test_i386(void)
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
                 err, uc_strerror(err));
     }
+	shellcode_post_verify32(uc);
 
     printf("\n>>> Emulation done.\n");
 
@@ -134,32 +219,6 @@ static void test_i386(void)
 
 int main(int argc, char **argv, char **envp)
 {
-    // dynamically load shared library
-#ifdef DYNLOAD
-    if (!uc_dyn_load(NULL, 0)) {
-        printf("Error dynamically loading shared library.\n");
-        printf("Please check that unicorn.dll/unicorn.so is available as well as\n");
-        printf("any other dependent dll/so files.\n");
-        printf("The easiest way is to place them in the same directory as this app.\n");
-        return 1;
-    }
-#endif
-    
-    if (argc == 2) {
-        if (!strcmp(argv[1], "-32")) {
-            test_i386();
-        }
-        else if (!strcmp(argv[1], "-h")) {
-            printf("Syntax: %s <-32|-64>\n", argv[0]);
-        }
-    } else {
-        test_i386();
-    }
-
-    // dynamically free shared library
-#ifdef DYNLOAD
-    uc_dyn_free();
-#endif
-    
+	test_i386();
     return 0;
 }
