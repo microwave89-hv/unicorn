@@ -122,7 +122,7 @@ int pc_cpus_init(struct uc_struct *uc, const char *cpu_model)
     /* init CPUs */
     if (cpu_model == NULL) {
 #ifdef TARGET_X86_64
-        cpu_model = "qemu64";
+        cpu_model = "core2duo";
 #else
         cpu_model = "qemu32";
 #endif
