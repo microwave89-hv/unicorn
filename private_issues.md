@@ -9,3 +9,6 @@
 
 # rdmsr (ecx = IA32_PLATFORM_ID) returns 0
 [ ] A: Implement MSR 0x17 in helper_rdmsr() in misc_helper.c
+
+# rdmsr (ecx = MSR_BBL_CR_CTL3) returns 0, which leads to bit 0 be 0 ("Indicates if the L2 is hardware-disabled"), and thus leads to CAR initialization fail (infinite loop)
+[ ] A: Implement L2 cache..? Fake L2 cache be enabled?
